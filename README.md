@@ -280,7 +280,9 @@ $$
 Now we plug the Cross-Entropy Loss gradient and Softmax gradient into the summation by splitting it into case $k=i$ and all other $k \neq i$ cases:
 
 $$
-\frac{\partial \mathcal{L}}{\partial z_i} = \underbrace{\left( -\frac{y_i}{\hat{y}_i} \right) (\hat{y}_i(1 - \hat{y}_i))}_{\text{The } k=i \text{ case}} + \underbrace{\sum_{k \neq i} \left( -\frac{y_k}{\hat{y}_k} \right) (-\hat{y}_k \hat{y}_i)}_{\text{All } k \neq i \text{ cases}}
+\frac{\partial \mathcal{L}}{\partial z_i} = 
+\underbrace{\left( -\frac{y_i}{\hat{y}_i} \right) (\hat{y}_i(1 - \hat{y}_i))}_{\text{The } k=i \text{ case}} + 
+\underbrace{\sum_{k \neq i} \left( -\frac{y_k}{\hat{y}_k} \right) (-\hat{y}_k \hat{y}_i)}_{\text{All } k \neq i \text{ cases}}
 $$
 
 Simplify each term (the $\hat{y}$ terms cancel out):
