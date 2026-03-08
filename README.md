@@ -98,7 +98,9 @@ Forward propagation is the process by which input data flows through the network
 
 ### 3.1 Weighted Sum
 Each neuron computes a weighted sum of its inputs:
-$$z = \sum_{i=1}^{n} w_i x_i + b$$
+$$
+z = \sum_{i=1}^{n} w_i x_i + b
+$$
 Where:  
 - $x_i$ are input values
 - $w_i$ are the learnable weights
