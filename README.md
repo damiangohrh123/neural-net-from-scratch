@@ -162,7 +162,10 @@ $$
 $$
 
 If the true digit is 2, its one-hot label is:  
-$$y=[0,0,1,0,0,0,0,0,0,0]$$
+
+$$
+y=[0,0,1,0,0,0,0,0,0,0]
+$$
 
 Compute the loss:
 
@@ -266,7 +269,10 @@ $$
 $$
 
 4. Simplify by substituting $\hat{y}_k = \frac{e^{z_k}}{S}$ back: 
-$$\frac{\partial \hat{y}_k}{\partial z_i} = \hat{y}_k (\delta_{ik} - \hat{y}_i)$$
+
+$$
+\frac{\partial \hat{y}_k}{\partial z_i} = \hat{y}_k (\delta_{ik} - \hat{y}_i)
+$$
 
 5. Evaluate the Kronecker delta  
     - If $k = i$: Since $\delta_{ii} = 1$, the equation becomes $\hat{y}_i(1 - \hat{y}_i)$.  
