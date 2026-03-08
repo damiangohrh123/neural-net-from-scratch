@@ -273,7 +273,11 @@ $$\frac{\partial \hat{y}_k}{\partial z_i} = \hat{y}_k (\delta_{ik} - \hat{y}_i)$
     - If $k \neq i$: Since $\delta_{ik} = 0$, the equation becomes $\hat{y}_k(0 - \hat{y}_i) = -\hat{y}_k\hat{y}_i$. 
  
 $$
-\frac{\partial \hat{y}_k}{\partial z_i} = \begin{cases} \hat{y}_i(1 - \hat{y}_i), & k = i \\ -\hat{y}_k\hat{y}_i, & k \neq i \end{cases}
+\frac{\partial \hat{y}_k}{\partial z_i} = 
+\begin{cases} 
+\hat{y}_i(1 - \hat{y}_i) & \text{if } k = i \\ 
+-\hat{y}_k \hat{y}_i & \text{if } k \neq i 
+\end{cases}
 $$
 
 **3. Combine and Simplify**  
