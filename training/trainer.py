@@ -38,6 +38,10 @@ class Trainer:
                 batch_loss = self.train_mini_batch(batch)
                 epoch_loss += batch_loss
 
+                # Progress tracker
+                if (i // batch_size) % 100 == 0:
+                    print(f"Epoch {epoch+1} | Batch {i // batch_size} | Current Batch Loss: {batch_loss:.4f}")
+
             avg_epoch_loss = epoch_loss / (len(dataset) / batch_size)
             print(f"Epoch {epoch + 1}/{epochs} completed. Avg Loss: {avg_epoch_loss:.4f}")
 
