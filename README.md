@@ -371,7 +371,12 @@ Where:
 * **$W_{next}^T$ (Transposed Weights):** The weights connecting the current layer to the next. We transpose them to map the error back from the output dimension to the hidden dimension.
 * **$\odot$ (Hadamard Product):** An operator for element_wise multiplication. It ensures each neuron’s error is multiplied by its own specific activation derivative.
 * **$f'(z_{hidden})$ (Activation Derivative):** The derivative of the activation function evaluated at the current layer’s input $z$. 
-    * The ReLU Derivative $f'(z) = \begin{cases} 1 & \text{if } z > 0 \\ 0 & \text{if } z \leq 0 \end{cases}$
+    * The ReLU Derivative $f'(z)$
+
+    $$
+    f'(z) = \begin{cases} 1 & \text{if } z > 0 \\\\ 0 & \text{if } z \leq 0 \end{cases}
+    $$
+
     * When $f'(z) = 1$: The neuron was "active" during the forward pass. The error signal passes through perfectly, allowing the weights connected to this neuron to be updated.
     * When $f'(z) = 0$: The neuron was "inactive." Multiplying by zero kills the error signal for this path. This prevents the network from trying to "fix" a neuron that didn't contribute to the final result.
 
