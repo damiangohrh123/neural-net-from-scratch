@@ -1,4 +1,5 @@
 import random
+import json
 from typing import List, Optional
 from core.matrix_math import dot_product, add_matrices, transpose, hadamard_product, scalar_multiply, subtract_matrices
 from core.activations import relu, relu_derivative, softmax
@@ -140,3 +141,25 @@ class NeuralNetwork:
         self.layers[1].biases = subtract_matrices(self.layers[1].biases, scalar_multiply(db2, learning_rate))
         self.layers[0].weights = subtract_matrices(self.layers[0].weights, scalar_multiply(dW1, learning_rate))
         self.layers[0].biases = subtract_matrices(self.layers[0].biases, scalar_multiply(db1, learning_rate))
+
+    def save_model(self, filename: str):
+        """Saves weights and biases to a JSON file."""
+        model_data = {
+            "layers": [
+                {"weights": layer.weights, "biases": layer.biases}
+                for layer in self.layers
+            ]
+        }
+        with open(filename, 'w') as f:
+            json.dump(model_data, f)
+        print(f"Model saved to {filename}")
+
+    def load_model(self, filename: str):
+        """Loads weights and biases from a JSON file."""
+        with open(filename, 'r') as f:
+            model_data = json.load(f)
+        
+        for i, layer_data in enumerate(model_data["layers"]):
+            self.layers[i].weights = layer_data["weights"]
+            self.layers[i].biases = layer_data["biases"]
+        print(f"Model loaded from {filename}")

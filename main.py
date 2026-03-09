@@ -50,5 +50,7 @@ def main():
     accuracy = (correct / len(test_dataset)) * 100
     print(f"Final Test Accuracy: {accuracy:.2f}%")
 
+    mnist_model.save_model("mnist_model_v1.json")
+
 if __name__ == "__main__":
     main()
