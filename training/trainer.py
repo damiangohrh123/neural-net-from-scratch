@@ -38,7 +38,8 @@ class Trainer:
                 batch_loss = self.train_mini_batch(batch)
                 epoch_loss += batch_loss
 
-            print(f"Epoch {epoch + 1}/{epochs} completed. Avg Loss: {epoch_loss / (len(dataset)/batch_size):.4f}")
+            avg_epoch_loss = epoch_loss / (len(dataset) / batch_size)
+            print(f"Epoch {epoch + 1}/{epochs} completed. Avg Loss: {avg_epoch_loss:.4f}")
 
     def train_mini_batch(self, batch: List[Tuple]) -> float:
         """
@@ -62,7 +63,7 @@ class Trainer:
             predictions = self.network.forward(x)
 
             # Compute Loss
-            total_loss += cross_entropy_loss([predictions], [y])
+            total_loss += cross_entropy_loss(predictions, y)
 
             # Initial Error Gradient
             loss_grad = cross_entropy_gradient(predictions, y)
