@@ -128,7 +128,7 @@ class NeuralNetwork:
         error_signal1 = dot_product(W2_T, delta2)
         delta1 = hadamard_product(error_signal1, relu_derivative(self.layers[0].z))
 
-        # Calculate Gradients for outptut layer
+        # Calculate Gradients for output layer
         dW2 = dot_product(delta2, transpose(self.layers[0].output))
         db2 = delta2
 
