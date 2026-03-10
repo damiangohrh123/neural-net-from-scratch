@@ -706,6 +706,77 @@ one_hot[label_val][0] = 1.0
 labels.append(one_hot)
 ```
 
+### 11.3 Neural Network Architecture  
+The Neural Network architecture follows a modular, layer-based design. Each layer is an independent object responsible for its own parameters, forward transformation, and gradient descent.
+
+**Layer Configuration and Parameter Initialization**  
+The model consists of a 784-unit input (flattened $28 \times 28$ image), a 128-unit hidden layer, and a 10-unit output layer.
+
+<div align="center">
+    <img src="images/nn_layers.png" width="800">
+    <p align="center">Figure 7: Neural network architecture diagram<p align="center">
+</div>
+
+To ensure the model can begin learning, a Small-Scale Uniform Initialization was implemented. If weights are initialized to zero, all neurons in a layer would produce the same output and receive the same gradient, preventing the network from learning unique features (Symmetry Problem). By using ```random.uniform(-0.1, 0.1)```, each connection starts with a unique, small "strength," allowing the backpropagation algorithm to adjust them individually.
+
+```python
+# Weights: matrix of (output_size x input_size)
+    self.weights: List[List[float]] = []
+
+    for row_index in range(output_size):
+        neuron_weights: List[float] = []
+        
+        for col_index in range(input_size):
+            # Generate a small random connection strength
+            weight = random.uniform(-0.1, 0.1)
+            neuron_weights.append(weight)
+        
+        self.weights.append(neuron_weights)
+```
+
+**Forward Pass**  
+Data flows through the  network in a sequential stack. Each layer computes a weighted sum of its inputs, adds a bias, and applies a non-linear activation function.
+1. **Hidden Layer:** $Z_1 = W_1 \cdot X + b_1 \rightarrow A_1 = \text{ReLU}(Z_1)$
+2. **Output Layer:** $Z_2 = W_2 \cdot A_1 + b_2 \rightarrow A_2 = \text{Softmax}(Z_2)$
+
+**Backpropagation**  
+Using the Chain Rule, the error at the output is propagated backward to find the partial derivatives (gradients) for every weight and bias in the system. For the output layer, the error $\delta$ is:
+
+$$
+\delta_{output} = \hat{y} - y_{true}
+$$
+
+For the hidden layer, the error is calculated by "projecting" the output error back through the weights and multiplying by the derivative of the activation function:
+
+$$
+\delta_{hidden} = (W_2^T \cdot \delta_{output}) \odot \text{ReLU}'(Z_1)
+$$
+
+```python
+def backward(self, loss_gradient: List[List[float]], learning_rate: float):
+        # Output Layer Error (delta2 = y_hat - y)
+        delta2 = loss_gradient 
+        
+        # Hidden Layer Error (delta1)
+        W2_T = transpose(self.layers[1].weights)
+        error_signal1 = dot_product(W2_T, delta2)
+        delta1 = hadamard_product(error_signal1, relu_derivative(self.layers[0].z))
+
+        # Calculate Gradients for output layer
+        dW2 = dot_product(delta2, transpose(self.layers[0].output))
+        db2 = delta2
+
+        # Calculate Gradients for hidden layer
+        dW1 = dot_product(delta1, transpose(self.layers[0].input_data))
+        db1 = delta1
+
+        # Update weights and biases by stepping in the opposite direction of the gradient
+        self.layers[1].weights = subtract_matrices(self.layers[1].weights, scalar_multiply(dW2, learning_rate))
+        self.layers[1].biases = subtract_matrices(self.layers[1].biases, scalar_multiply(db2, learning_rate))
+        self.layers[0].weights = subtract_matrices(self.layers[0].weights, scalar_multiply(dW1, learning_rate))
+        self.layers[0].biases = subtract_matrices(self.layers[0].biases, scalar_multiply(db1, learning_rate))
+```
+
 ## 12. Results and Analysis
 ## 13. Reference
 [1] MIT, "Introduction to deep learning," 6.S191, [Online]. Available: http://introtodeeplearning.com/
