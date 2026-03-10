@@ -777,6 +777,81 @@ def backward(self, loss_gradient: List[List[float]], learning_rate: float):
         self.layers[0].biases = subtract_matrices(self.layers[0].biases, scalar_multiply(db1, learning_rate))
 ```
 
+### 11.4 Training and Optimization  
+The ```Trainer``` class manages the iterative process of showing data to the network and refining its parameters. To optimize the training process in a pure Python environment, Mini-Batch Gradient Descent was employed.
+
+**Mini-Batch Strategy**  
+A Batch Size of 32 was chosen to allows the model to calculate a more stable gradient by averaging the error of 32 different images before making a weight adjustment.
+
+**The Training Loop**  
+For each epoch, the system executes the following steps:  
+1. **Shuffling:** The training data is randomized to ensure the model does not learn patterns based on the order of the files.
+2. **Forward-Backward Cycle:** Each image in the batch is passed through the network to calculate the loss, followed by a backward pass to calculate the gradients.
+3. **Parameter Update:** After 32 images, the weights ($W$) and biases ($b$) are updated using the learning rate ($\eta$):
+
+    $$
+    W_{new} = W_{old} - \eta \cdot \frac{1}{m} \sum_{i=1}^{m} \nabla L_i
+    $$
+
+    Where $m$ is the batch size and $\nabla L$ is the gradient of the loss.
+
+This part of the code iterates through epochs, shuffling data to ensure the model doesn't learn the order of images, and slicing the data into mini-batches:
+
+```python
+for epoch in range(epochs):
+    # Shuffle to prevent the model from learning the sequence of the data.
+    random.shuffle(dataset)
+    epoch_loss = 0.0
+    
+    # Process data in Mini-Batches
+    for i in range(0, len(dataset), batch_size):
+        # Slice the dataset into a sub-list of size batch_size.
+        batch = dataset[i : i + batch_size]
+
+        # Perform forward/backward passes and accumulate the loss.
+        batch_loss = self.train_mini_batch(batch)
+        epoch_loss += batch_loss
+```
+
+This part of the code handles the forward-backward cycle:
+
+```python
+# Iterate through each image (x) and its one-hot label (y) in the batch
+for x, y in batch:
+    # Forward Pass
+    predictions = self.network.forward(x)
+
+    # Compute Loss
+    total_loss += cross_entropy_loss(predictions, y)
+
+    # Initial Error Gradient
+    loss_grad = cross_entropy_gradient(predictions, y)
+
+    # Backpropagation & Update
+    self.network.backward(loss_grad, self.learning_rate)
+```
+
+**Hyperparameter Selection**  
+The performance of the model is heavily influenced by the Learning Rate ($\eta$).
+* **Selected Rate:** $0.01$
+* **Justification:** A higher rate (e.g., $0.1$) caused the loss to fluctuate or "explode" due to the lack of advanced optimizers like Adam. A lower rate (e.g., $0.001$) made the training too slow for a pure Python implementation. At $0.01$, the model showed a smooth, logarithmic decay in loss.
+
+**Model Persistence (JSON)** 
+Because training takes several hours, it was essential to save the "state" of the neural network. A custom serialization method was written to convert the 101,770 weights and biases into a standard JSON format.
+
+```python
+def save_model(self, filename: str):
+    model_data = {
+        "layers": [
+            {"weights": layer.weights, "biases": layer.biases}
+            for layer in self.layers
+        ]
+    }
+    with open(filename, 'w') as f:
+        json.dump(model_data, f)
+    print(f"Model saved to {filename}")
+```
+
 ## 12. Results and Analysis
 ## 13. Reference
 [1] MIT, "Introduction to deep learning," 6.S191, [Online]. Available: http://introtodeeplearning.com/
