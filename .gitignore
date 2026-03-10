@@ -1,1 +1,9 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+
+# VS Code settings
+.vscode/
+
+# MNIST Data
 data/raw/*.gz
