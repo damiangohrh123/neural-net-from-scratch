@@ -21,14 +21,15 @@ def softmax(Z: List[List[float]]) -> List[List[float]]:
     It makes the highest score stand out and ensures all 
     results are between 0 and 1, so they look like probabilities.
     """
-    output = []
-    for row in Z:
-        # Compute exponentials (shifted by max_val to prevent math.exp overflow)
-        # Every value is now <= 0, so math.exp stays between 0 and 1
-        max_val = max(row)
-        exps = [math.exp(val - max_val) for val in row]
+    # Flatten the 10x1 to a simple list of 10 numbers to find the global max
+    flat_z = [row[0] for row in Z]
+    max_val = max(flat_z)
 
-        # Normalize so they sum to 1
-        sum_exps = sum(exps)
-        output.append([e / sum_exps for e in exps])
-    return output
+    # Calculate e^(z - max) for all 10 numbers
+    exps = [math.exp(val - max_val) for val in flat_z]
+    
+    # Sum all 10 exponentials
+    sum_exps = sum(exps)
+
+    # Return as a 10x1 column vector again
+    return [[e / sum_exps] for e in exps]
