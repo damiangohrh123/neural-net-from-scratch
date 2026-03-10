@@ -565,8 +565,149 @@ Even though the design neural network is capable of learning handwritten digit c
 3. Gradient Descent Only
     * Only standard gradient descent is implemented. Advanced optimizers like Adam or RMSProp are not used, which may slow convergence.
 
-## 11. Results and Analysis
-## 12. Reference
+## 11. Implementation
+The core of the system is a custom mathematical engine built to handle linear algebra without external dependencies.
+
+### 11.1 Mathematical Foundation
+
+**Matrix Operations and Linear Algebra**  
+The matrix multiplication ($W \cdot x + b$) was implemented using nested list comprehensions. This operation is the algorithm for the forward pass, transforming a 784-pixel input into a 128-neuron hidden state.
+
+```python
+def dot_product(A, B):
+    # Get dimensions of both matrices
+    rows_A, cols_A = len(A), len(A[0])
+    rows_B, cols_B = len(B), len(B[0])
+    
+    # Make sure A's columns match B's rows for valid multiplication 
+    if cols_A != rows_B:
+        raise ValueError(f"Incompatible dimensions: {cols_A} != {rows_B}")
+
+    # Transpose B to make columns accessible as lists
+    B_T = [[B[i][j] for i in range(rows_B)] for j in range(cols_B)]
+
+    result = []
+    for row_A in A:
+            new_row = []
+            for col_B in B_T:
+                cell_value = 0
+                # Pair up elements from row_A and col_B using zip, and perform dot product
+                for a, b in zip(row_A, col_B):
+                    cell_value += a * b
+                
+                new_row.append(cell_value)
+                
+            result.append(new_row)
+        
+    return result
+```
+
+**Activation Functions and Numerical Stability**    
+Activation functions introduce the non-linearity required to learn complex patterns. A challenge in custom implementations is the numerical overflow, where calculating $e^x$ for large $x$ results in an infinitely large number (inf), crashing the training.
+* **ReLU (Hidden Layer):** It outputs the input directly if its positive, otherwise it outputs zero.
+
+$$
+f(z) = \max(0, z)
+$$
+
+* **Stable Softmax (Output Layer):** to prevent overflow, the "Max Trick" was used. By subtracting the maximum value in the vector before exponentiating, all values are shifted into a range where $e^x \leq 1$.
+
+$$
+\sigma(z)_i = \frac{e^{z_i - \max(Z)}}{\sum e^{z_j - \max(Z)}}
+$$
+
+```python
+def relu_derivative(Z: List[List[float]]) -> List[List[float]]:
+    return [[1.0 if val > 0 else 0.0 for val in row] for row in Z]
+
+def softmax(Z: List[List[float]]) -> List[List[float]]:
+    # Flatten the 10x1 to a simple list of 10 numbers to find the global max
+    flat_z = [row[0] for row in Z]
+    max_val = max(flat_z)
+
+    # Calculate e^(z - max) for all 10 numbers
+    exps = [math.exp(val - max_val) for val in flat_z]
+    
+    # Sum all 10 exponentials
+    sum_exps = sum(exps)
+
+    # Return as a 10x1 column vector again
+    return [[e / sum_exps] for e in exps]
+```
+
+**Loss Function: Categorical Cross-Entropy**  
+To measure the error of the network, Categorical Cross-Entropy was implemented to calculate the log-likelihood of the correct class.
+
+$$
+L = -\sum y_i \log(p_i)
+$$
+
+When simplified:
+
+$$
+L = -\log(\hat{y}_{\text{true}})
+$$
+
+```python
+def cross_entropy_loss(predictions: List[List[float]], targets: List[List[float]]) -> float:
+    loss = 0.0
+    
+    # Loop through the 10 classes (rows of the column vector)
+    for i in range(len(predictions)):
+        # targets[i][0] gets the float value from the [[val]] structure.
+        # y_i is 1 only for the correct class (One-Hot).
+        # We add a tiny epsilon (1e-15) to prevent log(0) which is undefined.
+        if targets[i][0] > 0.5: # 0.5 is safer than 0 for floats
+            loss -= math.log(predictions[i][0] + 1e-15)
+
+    return loss
+```
+
+### 11.2 Data Preprocessing and Binary Parsing  
+To prepare the input data, the raw data must be extracted from the MNIST dataset. This involved binary compression, byte-level parsing, and statistical normalization.
+
+**Binary Decoding (IDX Format)**  
+The downloaded MNIST files are GZIP-compressed binary blobs. The ```IDX``` format uses a "Magic Number" header to describe the data type (e.g., unsigned bytes) and the dimensions of the tensors (e.g., $60000 \times 28 \times 28$).
+
+```python
+def load_mnist_images(filename: str) -> List[List[List[float]]]:
+    with gzip.open(filename, 'rb') as f:
+        # Read header (16 bytes): Magic Number, Number of Images, Rows, Columns
+        magic, count, rows, cols = struct.unpack(">IIII", f.read(16))
+        
+        images = []
+        for _ in range(count):
+            # Read 784 bytes (one image)
+            raw_pixels = f.read(rows * cols)
+
+            # Normalize to [0.0, 1.0] and reshape into a 784x1 column vector for dot product operations.
+            normalized_pixels = [[pixel / 255.0] for pixel in raw_pixels]
+            images.append(normalized_pixels)
+            
+    return images
+```
+
+**Normalization and Feature Engineering**  
+The raw pixel values range from 0 (white) to 255 (black). Passing large integers into a neural network can cause "Gradient Explosion", where the weights grow too large too quickly. To stabilize training, the pixels were normalized to a floating-point range of $[0, 1]$.
+
+$$
+x_{normalized} = \frac{x_{raw}}{255.0}
+$$
+
+Each $28 \times 28$ image was then flattened into a $784 \times 1$ column vector to match the input dimensions of the first layer.
+
+**One-Hot Label Encoding**  
+The network cannot calculate a "distance" between the number $3$ and the number $7$ directly. Instead, labels were converted into One-Hot Vectors. For a digit $3$, the target vector $y$ is $0$ at every index except index $3$, which is set to $1.0$.
+
+```python
+# Create One-Hot Vector
+one_hot = [[0.0] for _ in range(10)]
+one_hot[label_val][0] = 1.0
+labels.append(one_hot)
+```
+
+## 12. Results and Analysis
+## 13. Reference
 [1] MIT, "Introduction to deep learning," 6.S191, [Online]. Available: http://introtodeeplearning.com/
 
 [2] Stanford University, "CS231n: deep learning for computer vision," [Online]. Available: http://cs231n.stanford.edu/
@@ -575,7 +716,4 @@ Even though the design neural network is capable of learning handwritten digit c
 
 [4] S. G. S. Girsang, "The misclassification likelihood matrix: some classes are more likely to be misclassified than others," ResearchGate, [Online]. Available: https://www.researchgate.net/publication/327246525
 
-## 13. Appendix
-
-
-
+## 14. Appendix
