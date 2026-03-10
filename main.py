@@ -47,7 +47,7 @@ def main():
     for epoch in range(epochs):
         print(f"\n--- Epoch {epoch + 1}/{epochs} ---")
         
-        # Run the rainer for exactly 1 epoch
+        # Run the trainer for exactly 1 epoch
         trainer.train(train_dataset, epochs=1, batch_size=batch_size)
 
         # After each epoch, see how we are doing on the TEST data
