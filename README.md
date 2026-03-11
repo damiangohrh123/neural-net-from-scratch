@@ -853,7 +853,77 @@ def save_model(self, filename: str):
 ```
 
 ## 12. Results and Analysis
-## 13. Reference
+This section provides a quantitative and qualitative assessment of the neural network's performance. By evaluating the model on 10,000 test images, we measure its true ability to generalize learned features to real-world handwriting.
+
+### 12.1 Quantitative Analysis: Training Metrics  
+**Convergence and Loss Decay**  
+The training process utilized Categorical Cross-Entropy as the objective function. The model demonstrated stable and rapid convergence. Starting from an initial loss of 2.27, the network achieved a rapid descent in the first two epochs. 
+
+<div align="center">
+    <img src="images/loss_vs_accuracy.png" width="600">
+    <p align="center">Figure 8: Training Loss vs. Accuracy Curve<p align="center">
+</div>
+
+The model concluded with a final test accuracy of 97.82%. In a set of 10,000 unseen images, the network successfully identified 9,782 of them.
+
+**Overfitting Check**  
+In our results, the Test Accuracy tracked closely with the Training Loss throughout all five epochs. Because the test accuracy continued to rise and reached 97.82% without a subsequent dip, we can confirm the model maintains strong generalization capabilities.
+
+<div align="center">
+    <img src="images/overfitting_check.png" width="600">
+    <p align="center">Figure 9: Overfitting Analysis<p align="center">
+</div>
+
+### 12.2 Confusion Matrix  
+To understand the "visual logic" of the network, we analyze the distribution of its errors across the ten digit classes in Figure 10.
+
+<div align="center">
+    <img src="images/confusion_matrix.png" width="800">
+    <p align="center">Figure 10: Digit Confusion Matrix<p align="center">
+</div>
+
+The confusion matrix reveals that while the diagonal (correct classifications) is dominant, specific "feature overlaps" exist between certain digits:
+
+* **Digit 4 and 9:** The model misclassified a "9" as a "4" 23 times. Geometrically, these digits both share a vertical stem and a closed upper loop. If the top of the "9" is slightly slanted or the "4" is closed-top, their flattened pixel vectors become mathematically similar.
+
+<div align="center">
+    <img src="images/errors/error_9_as_4.png" width="250">
+    <p align="center">Figure 11: Digit "9" misclassified as a "4"<p align="center">
+</div>
+
+* **Digit 3 and 5:** There were 12 instances where a "5" was mistaken for a "3". This typically occurs when the top horizontal stroke of the "5" is disconnected or curved, mimicking the upper arc of a "3".
+
+<div align="center">
+    <img src="images/errors/error_5_as_3.png" width="250">
+    <p align="center">Figure 12: Digit "5" misclassified as a "3"<p align="center">
+</div>
+
+* **Peak Precision:** The model was most successful with the digit "1", correctly identifying 1,127 samples with almost zero confusion. This is likely due to the unique, high-density vertical stroke that has very little feature overlap with circular digits like "0" or "8".
+
+<div align="center">
+    <img src="images/errors/success_1.png" width="250">
+    <p align="center">Figure 13: Digit "1" classified correctly<p align="center">
+</div>
+
+### 12.3 Summary of Final Metrics  
+<div align="center">
+
+| Metric | Result | Note |
+| :--- | :--- | :--- |
+| **Final Test Accuracy** | 97.82% | 9,782 / 10,000 correct |
+| **Average Final Loss** | 0.0424 | Stable cross-entropy convergence |
+| **Most Confused Pair** | 9 as 4 | 23 occurrences |
+| **Best Performing Digit** | 1 | 1,127 correct samples |
+
+</div>
+
+## 13. Conclusion
+
+
+
+
+
+## 14. Reference
 [1] MIT, "Introduction to deep learning," 6.S191, [Online]. Available: http://introtodeeplearning.com/
 
 [2] Stanford University, "CS231n: deep learning for computer vision," [Online]. Available: http://cs231n.stanford.edu/
