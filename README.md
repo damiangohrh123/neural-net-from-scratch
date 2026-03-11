@@ -914,16 +914,26 @@ The confusion matrix reveals that while the diagonal (correct classifications) i
 | **Average Final Loss** | 0.0424 | Stable cross-entropy convergence |
 | **Most Confused Pair** | 9 as 4 | 23 occurrences |
 | **Best Performing Digit** | 1 | 1,127 correct samples |
-
+<p align="center">Table 1: Final Metrics table<p align="center">
 </div>
 
-## 13. Conclusion
+## 13. Limitations
+While the model achieved high accuracy, the development process revealed several inherent constraints of building a neural network from scratch without hardware acceleration.
 
+The most significant bottleneck was the training time. Training 5 epochs on 60,000 images took approximately 2.5 hours on the AMD Ryzen 7 7800X3D (8-Core, 4.20 GHz). The current implementation relies on standard Python lists and basic loops for matrix operations. This restricted the Ryzen 7 CPU to single-threaded execution, leaving roughly 94% of the processor's potential idle. While the system had a Graphics Card, it remained completely unutilized. In a professional framework like PyTorch, the GPU would perform the 784x128 matrix multiplications in parallel across thousands of CUDA or Stream cores, likely reducing the 2.5-hour training time.
 
+The current architecture uses a "List of Lists" structure for matrices. While intuitive for learning, this structure is memory-inefficient for very large networks. As the number of hidden neurons or layers increases, the overhead of Python's object management would lead to exponential increases in both memory consumption and processing latency. We used a fixed learning rate. Modern systems use adaptive optimizers (like Adam), which adjust the "step size" for each weight individually. This omission likely resulted in a slower approach to the global minimum than what is possible with state-of-the-art methods.
 
+## 14. Conclusion  
+The objective of this project was to understand how a Neural Network actually works by building a fully functional neural network from scratch. Instead of relying on high-level frameworks such as PyTorch or TensorFlow, the goal was to see what really happens behind the scenes. By avoiding these tools, the development process gave a clearer and more direct view of how a neural network operates internally.
 
+The main success of this project was confirming that the mathematical ideas behind neural networks actually work in practice. Achieving a 97.82% test accuracy showed that the system was functioning correctly. First, the manual implementation of backpropagation proved that the Chain Rule could successfully calculate gradients across several layers, allowing the model to learn from its mistakes. Second, the activation functions played an important role. Using ReLU in the hidden layer and Softmax in the output layer helped transform raw pixel values into a clear probability distribution that the model could use for classification. Finally, numerical stability was an important challenge. By implementing the "Max Trick" for Softmax and using an epsilon adjustment in the Cross-Entropy calculation, the model was able to run millions of operations during training without running into floating-point overflow or NaN errors.
 
-## 14. Reference
+Building the system from scratch revealed several important insights that are usually hidden when using modern frameworks. One of the most important lessons was that weight initialization matters a lot. During testing, it was found that initializing weights in the range of [-0.1, 0.1] worked best because it prevented neurons from becoming saturated too early in training. Another key takeaway was the importance of linear algebra. Every calculation the network made was essentially a series of dot products and matrix additions. This project showed that AI systems are fundamentally optimization problems solved using high-dimensional mathematics. Data representation also turned out to be extremely important. Converting the raw MNIST binary data into normalized 784 × 1 column vectors was just as important as the training algorithm itself, because the network depended on properly formatted inputs to learn effectively.
+
+Overall, this project works as a strong proof-of-concept for building custom AI systems. Although modern libraries make development faster and easier, creating a neural network from scratch provides a deeper understanding that is difficult to get otherwise. In the end, this implementation demonstrates that modern AI is built on mathematical ideas that are surprisingly simple and accessible once they are understood.
+
+## 14. References
 [1] MIT, "Introduction to deep learning," 6.S191, [Online]. Available: http://introtodeeplearning.com/
 
 [2] Stanford University, "CS231n: deep learning for computer vision," [Online]. Available: http://cs231n.stanford.edu/
@@ -931,5 +941,3 @@ The confusion matrix reveals that while the diagonal (correct classifications) i
 [3] K. A. Kushal, "MNIST(hand written digit) classification using neural network(step by step) from scratch," Medium, [Online]. Available: https://medium.com/@koushik.ahmed.kushal
 
 [4] S. G. S. Girsang, "The misclassification likelihood matrix: some classes are more likely to be misclassified than others," ResearchGate, [Online]. Available: https://www.researchgate.net/publication/327246525
-
-## 14. Appendix
