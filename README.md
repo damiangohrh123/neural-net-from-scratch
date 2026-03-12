@@ -1,4 +1,8 @@
-# Neural Network From Scratch Documentation Structure (MNIST-Focused)
+# Neural Network From Scratch (MNIST)
+## 🚀 Live Interactive Demo
+Try out the model directly in your browser! The trained weights are deployed to a Hugging Face Space using a Gradio interface.  
+
+[👉 Click here to test the Live Digit Classifier](https://huggingface.co/spaces/damiangohrh123/neural-net-from-scratch)
 
 ## 1. Introduction
 This project focuses on building a neural network framework completely from scratch, without using libraries like TensorFlow or PyTorch. The goal is to understand how neural networks really work, including neurons, layers, activation functions, forward and backward propagation, and the training process. By building everything manually, the project highlights the core ideas behind how models learn rather than relying on prebuilt tools. The framework is tested on real-world data such as MNIST to show that it can learn meaningful patterns.
@@ -664,7 +668,7 @@ def cross_entropy_loss(predictions: List[List[float]], targets: List[List[float]
 ```
 
 ### 11.2 Data Preprocessing and Binary Parsing  
-To prepare the input data, the raw data must be extracted from the MNIST dataset. This involved binary compression, byte-level parsing, and statistical normalization.
+This project utilizes the MNIST Database of Handwritten Digits. The raw binary files are parsed at the byte level using Python's struct and gzip modules. The dataset was downloaded from [this GitHub repository](https://github.com/fgnt/mnist).
 
 **Binary Decoding (IDX Format)**  
 The downloaded MNIST files are GZIP-compressed binary blobs. The ```IDX``` format uses a "Magic Number" header to describe the data type (e.g., unsigned bytes) and the dimensions of the tensors (e.g., $60000 \times 28 \times 28$).
